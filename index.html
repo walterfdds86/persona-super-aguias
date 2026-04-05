@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personas Super Águias — Dashboard</title>
+<style>
+  :root {
+    --pt-primary: #0ea5e9;
+    --pt-light: #e0f2fe;
+    --pt-dark: #0369a1;
+    --es-primary: #f59e0b;
+    --es-light: #fef3c7;
+    --es-dark: #b45309;
+    --pain: #ef4444;
+    --desire: #10b981;
+    --neutral: #6b7280;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --radius: 16px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,.10);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+    padding: 32px 24px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content:'';
+    position:absolute; inset:0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(14,165,233,.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 50%, rgba(245,158,11,.12) 0%, transparent 60%);
+  }
+  .header-inner { position:relative; z-index:1; max-width:900px; margin:0 auto; }
+  .eagle-icon { font-size:48px; line-height:1; margin-bottom:8px; }
+  .header h1 { font-size:28px; font-weight:800; color:#fff; letter-spacing:-.5px; }
+  .header p { color:#94a3b8; font-size:14px; margin-top:6px; }
+  .badges { display:flex; gap:8px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
+  .badge {
+    padding: 4px 14px; border-radius: 20px; font-size:12px; font-weight:600;
+    backdrop-filter:blur(8px);
+  }
+  .badge-pt { background:rgba(14,165,233,.2); color:#7dd3fc; border:1px solid rgba(14,165,233,.3); }
+  .badge-es { background:rgba(245,158,11,.2); color:#fcd34d; border:1px solid rgba(245,158,11,.3); }
+  .badge-date { background:rgba(255,255,255,.1); color:#cbd5e1; border:1px solid rgba(255,255,255,.15); }
+
+  /* ── TABS ── */
+  .tabs-wrap { background:#fff; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+  .tabs { display:flex; max-width:1100px; margin:0 auto; overflow-x:auto; padding:0 16px; gap:2px; }
+  .tab {
+    padding:14px 18px; font-size:13px; font-weight:600; color:var(--text-muted);
+    cursor:pointer; border:none; background:none; white-space:nowrap;
+    border-bottom:3px solid transparent; transition:all .2s; display:flex; align-items:center; gap:6px;
+  }
+  .tab:hover { color:var(--text); }
+  .tab.active-pt { color:var(--pt-dark); border-bottom-color:var(--pt-primary); }
+  .tab.active-es { color:var(--es-dark); border-bottom-color:var(--es-primary); }
+  .tab.active-neutral { color:#7c3aed; border-bottom-color:#7c3aed; }
+
+  /* ── LAYOUT ── */
+  .page { display:none; max-width:1100px; margin:0 auto; padding:28px 20px 60px; }
+  .page.visible { display:block; }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  @media(max-width:768px) {
+    .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; }
+  }
+
+  /* ── CARD ── */
+  .card {
+    background:var(--card); border-radius:var(--radius); padding:24px;
+    box-shadow:var(--shadow); border:1px solid var(--border);
+  }
+  .card-title {
+    font-size:13px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+    color:var(--text-muted); margin-bottom:16px; display:flex; align-items:center; gap:8px;
+  }
+  .card-title span { font-size:16px; }
+
+  /* ── PERSONA HERO ── */
+  .persona-hero {
+    border-radius:var(--radius); padding:32px; margin-bottom:24px;
+    display:grid; grid-template-columns:auto 1fr; gap:28px; align-items:center;
+    box-shadow:var(--shadow-lg);
+  }
+  .persona-hero.pt { background:linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
+  .persona-hero.es { background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+  .persona-avatar {
+    width:90px; height:90px; border-radius:50%; background:rgba(255,255,255,.2);
+    display:flex; align-items:center; justify-content:center; font-size:44px;
+    border:3px solid rgba(255,255,255,.4); flex-shrink:0;
+  }
+  .persona-info h2 { font-size:26px; font-weight:800; color:#fff; }
+  .persona-info .tagline { color:rgba(255,255,255,.85); font-style:italic; font-size:15px; margin:6px 0; }
+  .persona-meta { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .meta-chip {
+    background:rgba(255,255,255,.2); color:#fff; border:1px solid rgba(255,255,255,.3);
+    padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600;
+  }
+  .quote-box {
+    background:rgba(255,255,255,.15); border-left:4px solid rgba(255,255,255,.6);
+    padding:14px 18px; border-radius:10px; margin-top:16px;
+    color:#fff; font-style:italic; font-size:15px; grid-column:1/-1;
+  }
+
+  /* ── PROGRESS BARS ── */
+  .pain-list, .desire-list { display:flex; flex-direction:column; gap:10px; }
+  .pain-item, .desire-item { display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; }
+  .pain-rank, .desire-rank {
+    width:24px; height:24px; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-size:11px; font-weight:800; flex-shrink:0;
+  }
+  .pain-rank { background:#fee2e2; color:#991b1b; }
+  .desire-rank { background:#d1fae5; color:#065f46; }
+  .pain-label, .desire-label { font-size:13px; color:var(--text); line-height:1.3; }
+  .bar-wrap { display:flex; align-items:center; gap:8px; }
+  .bar-track { flex:1; height:6px; background:#f1f5f9; border-radius:3px; }
+  .bar-fill { height:100%; border-radius:3px; transition:width .8s ease; }
+  .bar-pain { background:linear-gradient(90deg,#fca5a5,#ef4444); }
+  .bar-desire { background:linear-gradient(90deg,#6ee7b7,#10b981); }
+  .bar-score { font-size:11px; font-weight:700; color:var(--text-muted); width:28px; text-align:right; }
+
+  /* ── OBJECTIONS ── */
+  .obj-list { display:flex; flex-direction:column; gap:10px; }
+  .obj-item {
+    background:#fafafa; border:1px solid var(--border); border-radius:10px;
+    padding:12px 14px; cursor:pointer; transition:all .2s;
+  }
+  .obj-item:hover { background:#f1f5f9; }
+  .obj-q { font-size:13px; font-weight:600; color:var(--text); display:flex; justify-content:space-between; align-items:center; }
+  .obj-a { font-size:12px; color:var(--text-muted); margin-top:6px; line-height:1.5; display:none; }
+  .obj-item.open .obj-a { display:block; }
+  .obj-arrow { transition:transform .2s; font-size:10px; color:var(--text-muted); }
+  .obj-item.open .obj-arrow { transform:rotate(180deg); }
+
+  /* ── TRIGGER PILLS ── */
+  .pills { display:flex; flex-wrap:wrap; gap:8px; }
+  .pill {
+    padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600;
+    border:1.5px solid; cursor:default;
+  }
+  .pill-pt { background:var(--pt-light); color:var(--pt-dark); border-color:var(--pt-primary); }
+  .pill-es { background:var(--es-light); color:var(--es-dark); border-color:var(--es-primary); }
+  .pill-pain { background:#fee2e2; color:#991b1b; border-color:#fca5a5; }
+  .pill-desire { background:#d1fae5; color:#065f46; border-color:#6ee7b7; }
+  .pill-purple { background:#ede9fe; color:#5b21b6; border-color:#a78bfa; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size:20px; font-weight:800; color:var(--text); margin-bottom:20px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ── EMPATHY MAP ── */
+  .empathy-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:auto auto auto auto;
+    gap:12px;
+  }
+  .empathy-cell {
+    background:var(--card); border-radius:12px; padding:18px;
+    box-shadow:var(--shadow); border-top:4px solid;
+  }
+  .empathy-cell.thinks { border-color:#6366f1; grid-column:1/-1; }
+  .empathy-cell.sees { border-color:#0ea5e9; }
+  .empathy-cell.hears { border-color:#10b981; }
+  .empathy-cell.says { border-color:#f59e0b; grid-column:1/-1; }
+  .empathy-cell.pains { border-color:#ef4444; }
+  .empathy-cell.gains { border-color:#22c55e; }
+  .empathy-cell h4 { font-size:12px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; margin-bottom:10px; }
+  .empathy-cell.thinks h4 { color:#6366f1; }
+  .empathy-cell.sees h4 { color:#0ea5e9; }
+  .empathy-cell.hears h4 { color:#10b981; }
+  .empathy-cell.says h4 { color:#f59e0b; }
+  .empathy-cell.pains h4 { color:#ef4444; }
+  .empathy-cell.gains h4 { color:#22c55e; }
+  .empathy-cell ul { list-style:none; display:flex; flex-direction:column; gap:5px; }
+  .empathy-cell li { font-size:12.5px; color:var(--text); line-height:1.4; padding-left:14px; position:relative; }
+  .empathy-cell li::before { content:'→'; position:absolute; left:0; color:#94a3b8; font-size:10px; top:1px; }
+
+  /* ── ICP TABLE ── */
+  .icp-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .icp-table th { background:#f8fafc; padding:10px 14px; text-align:left; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.4px; color:var(--text-muted); border-bottom:2px solid var(--border); }
+  .icp-table td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.5; }
+  .icp-table tr:last-child td { border-bottom:none; }
+  .icp-table tr:hover td { background:#fafafa; }
+  .tag-ideal { background:#d1fae5; color:#065f46; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; }
+  .tag-ok { background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; }
+  .tag-no { background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700; }
+
+  /* ── ANTI-PERSONA CARDS ── */
+  .anti-card {
+    background:var(--card); border-radius:var(--radius); padding:20px;
+    box-shadow:var(--shadow); border:1px solid var(--border);
+    border-top:4px solid #ef4444;
+  }
+  .anti-card h4 { font-size:14px; font-weight:800; color:#dc2626; margin-bottom:6px; }
+  .anti-card .who { font-size:12px; color:var(--text-muted); margin-bottom:10px; }
+  .anti-quote {
+    background:#fff5f5; border-left:3px solid #fca5a5;
+    padding:8px 12px; border-radius:6px; font-style:italic;
+    font-size:12px; color:#7f1d1d; margin-bottom:10px;
+  }
+  .anti-cost { font-size:12px; color:var(--text-muted); display:flex; gap:6px; align-items:center; }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .compare-table th { padding:12px 16px; text-align:left; font-weight:700; border-bottom:2px solid var(--border); }
+  .compare-table th:nth-child(2) { background:var(--pt-light); color:var(--pt-dark); border-radius:8px 0 0 0; }
+  .compare-table th:nth-child(3) { background:var(--es-light); color:var(--es-dark); border-radius:0 8px 0 0; }
+  .compare-table td { padding:10px 16px; border-bottom:1px solid var(--border); vertical-align:top; line-height:1.5; }
+  .compare-table tr:last-child td { border-bottom:none; }
+  .compare-table tr:hover td { background:#fafafa; }
+  .compare-table td:first-child { font-weight:700; color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:.3px; }
+  .compare-table td:nth-child(2) { background:rgba(14,165,233,.04); }
+  .compare-table td:nth-child(3) { background:rgba(245,158,11,.04); }
+
+  /* ── SCROLL STOP ── */
+  .scroll-card {
+    background: linear-gradient(135deg,#1e293b,#334155);
+    border-radius:12px; padding:16px 20px;
+    margin-bottom:10px;
+  }
+  .scroll-card p { color:#f1f5f9; font-size:13px; font-style:italic; line-height:1.5; }
+  .scroll-card::before { content:'"'; color:#64748b; font-size:40px; line-height:0; position:relative; top:14px; margin-right:6px; }
+
+  /* ── STATS ROW ── */
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+  @media(max-width:600px){ .stats { grid-template-columns:1fr 1fr; } }
+  .stat-card {
+    background:var(--card); border-radius:14px; padding:20px;
+    box-shadow:var(--shadow); text-align:center; border:1px solid var(--border);
+  }
+  .stat-card .num { font-size:28px; font-weight:900; line-height:1; }
+  .stat-card .label { font-size:11px; color:var(--text-muted); margin-top:4px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+  .stat-pt .num { color:var(--pt-dark); }
+  .stat-es .num { color:var(--es-dark); }
+  .stat-total .num { color:#7c3aed; }
+
+  /* ── DAY IN LIFE ── */
+  .timeline { display:flex; flex-direction:column; gap:0; }
+  .tl-item { display:grid; grid-template-columns:60px 1fr; gap:0; }
+  .tl-time { padding:12px 12px 12px 0; text-align:right; font-size:12px; font-weight:700; color:var(--text-muted); position:relative; }
+  .tl-time::after { content:''; position:absolute; right:-1px; top:18px; width:10px; height:10px; border-radius:50%; background:var(--border); border:2px solid var(--bg); }
+  .tl-content { padding:8px 0 16px 20px; border-left:2px solid var(--border); font-size:13px; color:var(--text); line-height:1.6; }
+  .tl-content em { color:var(--text-muted); font-style:italic; }
+  .tl-item:first-child .tl-time::after { background:var(--pt-primary); }
+  .tl-item:last-child .tl-time::after { background:var(--desire); }
+
+  /* ── COPY GUIDE ── */
+  .copy-block {
+    background:#0f172a; border-radius:12px; padding:20px 24px;
+    font-family:'Consolas',monospace; font-size:13px; color:#e2e8f0;
+    line-height:1.8; position:relative;
+  }
+  .copy-block .lbl { color:#94a3b8; font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+  .copy-block .val { color:#7dd3fc; }
+  .copy-block .val-es { color:#fcd34d; }
+  .copy-block .val-green { color:#6ee7b7; }
+
+  /* ── FOOTER ── */
+  .footer { text-align:center; padding:24px; color:var(--text-muted); font-size:12px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="eagle-icon">🦅</div>
+    <h1>Personas Master — Curso Super Águias</h1>
+    <p>Dashboard estratégico baseado em pesquisa real com leads — Ciclo 2/2026</p>
+    <div class="badges">
+      <span class="badge badge-pt">🇧🇷 Público Português</span>
+      <span class="badge badge-es">🌎 Público Espanhol</span>
+      <span class="badge badge-date">📅 Gerado em 05/04/2026</span>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab active-neutral" onclick="show('overview',this,'active-neutral')">🗺️ Visão Geral</button>
+    <button class="tab" onclick="show('pt',this,'active-pt')">🇧🇷 Dona Neide (PT)</button>
+    <button class="tab" onclick="show('es',this,'active-es')">🌎 Doña Carmen (ES)</button>
+    <button class="tab" onclick="show('empathy',this,'active-neutral')">🧠 Mapa de Empatia</button>
+    <button class="tab" onclick="show('icp',this,'active-neutral')">🎯 ICP + Scoring</button>
+    <button class="tab" onclick="show('anti',this,'active-neutral')">🚫 Anti-Personas</button>
+    <button class="tab" onclick="show('copy',this,'active-neutral')">✍️ Guia de Copy</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- PAGE: VISÃO GERAL -->
+<!-- ═══════════════════════════════════ -->
+<div id="page-overview" class="page visible">
+
+  <!-- Stats -->
+  <div class="stats" style="margin-top:28px;">
+    <div class="stat-card stat-pt">
+      <div class="num">42k</div>
+      <div class="label">Meta leads PT 🇧🇷</div>
+    </div>
+    <div class="stat-card stat-es">
+      <div class="num">18k</div>
+      <div class="label">Meta leads ES 🌎</div>
+    </div>
+    <div class="stat-card stat-total">
+      <div class="num">55-65</div>
+      <div class="label">Faixa etária pico</div>
+    </div>
+    <div class="stat-card" style="border-top:3px solid #10b981;">
+      <div class="num" style="color:#059669;">8</div>
+      <div class="label">Dias do intensivo</div>
+    </div>
+  </div>
+
+  <div class="section-title">Comparativo PT × ES</div>
+  <div class="card" style="margin-bottom:24px; padding:0; overflow:hidden;">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:180px;">Atributo</th>
+          <th>🇧🇷 Dona Neide (PT)</th>
+          <th>🌎 Doña Carmen (ES)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Nome fictício</td><td>Dona Neide / Dona Maria</td><td>Doña Carmen / Doña Rosa</td></tr>
+        <tr><td>Idade pico</td><td>62 anos (55–70)</td><td>57 anos (50–65)</td></tr>
+        <tr><td>Renda</td><td>R$1.000–R$3.000/mês</td><td>$100–$600 USD/mês</td></tr>
+        <tr><td>País</td><td>Brasil — SP, MG, BA, RS</td><td>Col, ARG, MEX, VEN, GTM</td></tr>
+        <tr><td>Símbolo de liberdade</td><td>Ler a Bíblia / costurar</td><td>Manejar de noche / bordar</td></tr>
+        <tr><td>Maior dor</td><td>Dependência dos óculos + vergonha</td><td>Não poder dirigir à noite</td></tr>
+        <tr><td>Vilão da história</td><td>Médico que só aumenta o grau</td><td>Médico que solo receta más</td></tr>
+        <tr><td>Hobby central</td><td>Crochê, bordado, costura</td><td>Bordar, tejer, coser</td></tr>
+        <tr><td>Conexão espiritual</td><td>Bíblia — fé evangélica/cristã</td><td>Biblia — fé católica / Virgem</td></tr>
+        <tr><td>Medo central</td><td>Cegar e depender dos filhos</td><td>Quedar ciega y no poder salir</td></tr>
+        <tr><td>Objeção #1</td><td>"Já tentei de tudo e nada funcionou"</td><td>"¿Funciona para cataratas avanzado?"</td></tr>
+        <tr><td>Gatilho #1</td><td>Depoimento de mulher similar</td><td>Testimonio de mujer similar</td></tr>
+        <tr><td>Crença limitante</td><td>"Com minha idade não tem mais jeito"</td><td>"Con mi edad ya no tiene solución"</td></tr>
+        <tr><td>Ticket sem pensar</td><td>Até R$49–97</td><td>Até $15–30 USD</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section-title">Pontos em Comum — Os 2 Públicos</div>
+  <div class="grid-3" style="margin-bottom:28px;">
+    <div class="card">
+      <div class="card-title"><span>🙏</span> Espiritualidade</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Leitura bíblica é desejo central em ambos os públicos. Fé é um valor que permeia toda a jornada — desde a motivação até a gratidão pelo resultado.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>🧵</span> Trabalhos Manuais</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Costura, bordado e crochê aparecem como hobbies centrais que a visão ruim comprometeu. Recuperar isso é recuperar identidade.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>🚫</span> Sem Cirurgia</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">"Sem cirurgia" / "sin cirugía" é promessa-chave para ambos. O medo de operar e o custo proibitivo unem os dois públicos.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>👨‍⚕️</span> Sistema Médico Falhou</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Em ambos os mercados, o oftalmologista representa frustração. "Só aumenta o grau" / "solo receta más" é a fala mais repetida.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>💜</span> Autonomia é Tudo</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">Não depender de ninguém para tarefas simples é o desejo mais profundo. A visão não é estética — é liberdade.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📱</span> Depoimento Move</div>
+      <p style="font-size:13px;color:var(--text-muted);line-height:1.6;">O gatilho de compra mais poderoso nos dois públicos é o testemunho emocional de alguém da mesma idade com condição similar.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Frases que Param o Scroll</div>
+  <div class="grid-2">
+    <div>
+      <p style="font-size:12px;font-weight:700;color:var(--pt-dark);margin-bottom:10px;">🇧🇷 PÚBLICO PORTUGUÊS</p>
+      <div class="scroll-card"><p>Exercício simples que está ajudando mulheres de 55+ a ler a Bíblia sem óculos</p></div>
+      <div class="scroll-card"><p>O que o oftalmologista não te contou sobre sua visão</p></div>
+      <div class="scroll-card"><p>Como parei de depender dos óculos sem gastar nada</p></div>
+      <div class="scroll-card"><p>Para quem tem mais de 60 anos e está perdendo a visão</p></div>
+    </div>
+    <div>
+      <p style="font-size:12px;font-weight:700;color:var(--es-dark);margin-bottom:10px;">🌎 PÚBLICO ESPANHOL</p>
+      <div class="scroll-card"><p>Ejercicio que ayuda a mujeres mayores de 50 a dejar las gafas</p></div>
+      <div class="scroll-card"><p>Lo que el oftalmólogo no te dice sobre tu visión</p></div>
+      <div class="scroll-card"><p>Para quien ya no maneja de noche y tiene miedo de quedar ciega</p></div>
+      <div class="scroll-card"><p>Mi mamá de 70 años mejoró la vista sin operación</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- PAGE: PT -->
+<!-- ═══════════════════════════════════ -->
+<div id="page-pt" class="page">
+
+  <!-- Hero -->
+  <div class="persona-hero pt" style="margin-top:28px;">
+    <div class="persona-avatar">👩</div>
+    <div class="persona-info">
+      <h2>Dona Neide</h2>
+      <div class="tagline">"Eu queria tanto ler a Bíblia sem precisar procurar os óculos toda vez"</div>
+      <div class="persona-meta">
+        <span class="meta-chip">📅 58–68 anos</span>
+        <span class="meta-chip">💰 R$1k–R$3k/mês</span>
+        <span class="meta-chip">🏠 Aposentada / Dona de Casa</span>
+        <span class="meta-chip">📍 Brasil</span>
+      </div>
+    </div>
+    <div class="quote-box">
+      💡 <strong>Frase de qualificação:</strong> Mulher de 55 a 70 anos, usa óculos há anos, cansada de só ver o grau aumentar, tem glaucoma/catarata/presbiopia, quer recuperar autonomia para ler e costurar, disposta a 20 min/dia por 8 dias.
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px;">
+
+    <!-- Dores -->
+    <div class="card">
+      <div class="card-title"><span>💔</span> Top 10 Dores</div>
+      <div class="pain-list">
+        <div class="pain-item"><div class="pain-rank">1</div><div class="pain-label">Dependência total dos óculos para qualquer atividade</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:100%"></div></div><div class="bar-score">10</div></div></div>
+        <div class="pain-item"><div class="pain-rank">2</div><div class="pain-label">Não consegue ler a Bíblia sem óculos</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="pain-item"><div class="pain-rank">3</div><div class="pain-label">Não consegue costurar/bordar/crochê sem ajuda</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="pain-item"><div class="pain-rank">4</div><div class="pain-label">Médico só aumenta o grau — nunca resolve</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="pain-item"><div class="pain-rank">5</div><div class="pain-label">Medo de perder a visão progressivamente</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="pain-item"><div class="pain-rank">6</div><div class="pain-label">Se sente velha e dependente por causa da visão</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="pain-item"><div class="pain-rank">7</div><div class="pain-label">Constrangimentos em público (ônibus, banco)</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:80%"></div></div><div class="bar-score">8</div></div></div>
+        <div class="pain-item"><div class="pain-rank">8</div><div class="pain-label">Não consegue dirigir à noite com segurança</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:80%"></div></div><div class="bar-score">8</div></div></div>
+        <div class="pain-item"><div class="pain-rank">9</div><div class="pain-label">Visão embaçada que piora ao longo do dia</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:80%"></div></div><div class="bar-score">8</div></div></div>
+        <div class="pain-item"><div class="pain-rank">10</div><div class="pain-label">Não pode pagar tratamentos caros ou cirurgias</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:80%"></div></div><div class="bar-score">8</div></div></div>
+      </div>
+    </div>
+
+    <!-- Desejos -->
+    <div class="card">
+      <div class="card-title"><span>💚</span> Top 10 Desejos</div>
+      <div class="desire-list">
+        <div class="desire-item"><div class="desire-rank">1</div><div class="desire-label">Ler a Bíblia com os próprios olhos, sem óculos</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:100%"></div></div><div class="bar-score">10</div></div></div>
+        <div class="desire-item"><div class="desire-rank">2</div><div class="desire-label">Não depender de óculos no dia a dia</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:100%"></div></div><div class="bar-score">10</div></div></div>
+        <div class="desire-item"><div class="desire-rank">3</div><div class="desire-label">Voltar a costurar, bordar, fazer crochê</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="desire-item"><div class="desire-rank">4</div><div class="desire-label">Resolver o problema sem cirurgia</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="desire-item"><div class="desire-rank">5</div><div class="desire-label">Frear a progressão do glaucoma/catarata</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="desire-item"><div class="desire-rank">6</div><div class="desire-label">Ter uma visão nítida sem esforço</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:100%"></div></div><div class="bar-score">10</div></div></div>
+        <div class="desire-item"><div class="desire-rank">7</div><div class="desire-label">Ver o rosto dos netos com nitidez</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:80%"></div></div><div class="bar-score">8</div></div></div>
+        <div class="desire-item"><div class="desire-rank">8</div><div class="desire-label">Ler receitas, rótulos, ruas sem pedir ajuda</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:80%"></div></div><div class="bar-score">8</div></div></div>
+        <div class="desire-item"><div class="desire-rank">9</div><div class="desire-label">Dirigir à noite com confiança</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:80%"></div></div><div class="bar-score">8</div></div></div>
+        <div class="desire-item"><div class="desire-rank">10</div><div class="desire-label">Sentir que ainda há chance natural de melhorar</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Objeções -->
+  <div class="card" style="margin-bottom:24px;">
+    <div class="card-title"><span>🛡️</span> Top 10 Objeções — clique para ver a resposta</div>
+    <div class="obj-list">
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"Já tentei de tudo e nada funcionou" <span class="obj-arrow">▼</span></div><div class="obj-a">Mostrar que o método da Tatiana é diferente dos genéricos. Exibir depoimentos de pessoas com histórico similar de tentativas frustradas.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"Sou muito velha para isso funcionar" <span class="obj-arrow">▼</span></div><div class="obj-a">Apresentar depoimentos de pessoas acima de 60–65 anos que tiveram resultado. A idade nunca é barreira no tom da Tatiana.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"O médico disse que não tem cura" <span class="obj-arrow">▼</span></div><div class="obj-a">"Médico trata a doença. Tatiana treina o olho como músculo." Respeitar o médico mas mostrar o ângulo complementar e diferente.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"Minha doença é grave demais (glaucoma, catarata)" <span class="obj-arrow">▼</span></div><div class="obj-a">Cases específicos por tipo de problema visual — glaucoma, catarata, presbiopia. A especificidade do case elimina a crença de que "meu caso é diferente".</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"Não sei mexer bem no celular / computador" <span class="obj-arrow">▼</span></div><div class="obj-a">Interface simples, aulas em vídeo com áudio claro, tutorial de acesso simplificado, suporte no grupo de WhatsApp.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"Tenho diabetes / glaucoma — é seguro?" <span class="obj-arrow">▼</span></div><div class="obj-a">"Os exercícios são suaves e complementam o tratamento médico." Aviso claro de que não substitui médico — isso aumenta confiança.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"Vai tomar muito do meu tempo?" <span class="obj-arrow">▼</span></div><div class="obj-a">"15 a 20 minutos por dia — cabe na sua rotina." Mostrar a estrutura clara do dia 1 logo no início.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"Isso parece coisa de charlatão" <span class="obj-arrow">▼</span></div><div class="obj-a">Mostrar a trajetória real da Tatiana, anos de presença, volume de alunos, depoimentos verificáveis. Transparência total.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"Não tenho dinheiro para pagar" <span class="obj-arrow">▼</span></div><div class="obj-a">O curso gratuito é o primeiro passo — sem compromisso. Deixar claro que pode ter resultado só com o gratuito.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"E se os exercícios piorarem minha visão?" <span class="obj-arrow">▼</span></div><div class="obj-a">Explicar que são exercícios suaves com base científica. O aviso médico explícito transmite responsabilidade e aumenta confiança.</div></div>
+    </div>
+  </div>
+
+  <!-- Gatilhos + Frases -->
+  <div class="grid-2" style="margin-bottom:24px;">
+    <div class="card">
+      <div class="card-title"><span>⚡</span> Gatilhos de Decisão</div>
+      <div class="pills">
+        <span class="pill pill-desire">Depoimento mulher 60+ com catarata</span>
+        <span class="pill pill-desire">Linguagem acolhedora e empática</span>
+        <span class="pill pill-desire">Gratuidade genuína</span>
+        <span class="pill pill-desire">Quick win nos primeiros dias</span>
+        <span class="pill pill-desire">Comunidade de mulheres similares</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>💬</span> Frases que Ela Usa</div>
+      <div class="pills">
+        <span class="pill pill-pain">"Tô com a vista muito cansada"</span>
+        <span class="pill pill-pain">"O médico só aumenta o grau"</span>
+        <span class="pill pill-pain">"Sem óculos não consigo nada"</span>
+        <span class="pill pill-pain">"Será que tem jeito?"</span>
+        <span class="pill pill-pain">"Não consigo mais enfiar linha"</span>
+        <span class="pill pill-pain">"Graças a Deus ainda enxergo"</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Um dia na vida -->
+  <div class="card">
+    <div class="card-title"><span>🌅</span> Um Dia na Vida — Dona Neide</div>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-time">07:00</div><div class="tl-content">Acorda e busca os óculos antes de qualquer coisa — sem eles não enxerga nem o celular. <em>"Onde estão esses óculos de novo?"</em></div></div>
+      <div class="tl-item"><div class="tl-time">08:30</div><div class="tl-content">Tenta ler a embalagem do remédio para a pressão. A letra está pequena demais. Pede para o marido ler.</div></div>
+      <div class="tl-item"><div class="tl-time">09:00</div><div class="tl-content">Tenta fazer crochê. Para em 20 minutos porque os olhos ardem e embaçam. Olha para a janela. <em>"Antes ficava horas nisso."</em></div></div>
+      <div class="tl-item"><div class="tl-time">12:00</div><div class="tl-content">No mercado, aproxima o produto do rosto para ler a data de validade. Alguém passa e olha. Constrangimento silencioso.</div></div>
+      <div class="tl-item"><div class="tl-time">15:00</div><div class="tl-content">Leitura da Bíblia. Com óculos, consegue. Mas o olho cansa em 20 minutos e embaça. Fecha antes de querer. Uma tristeza conhecida.</div></div>
+      <div class="tl-item"><div class="tl-time">20:00</div><div class="tl-content">No Instagram, aparece Reels da Tatiana. Assiste 3 vezes. Manda para a filha. Se inscreve no curso. Antes de dormir reza: <em>"Senhor, deixa eu melhorar minha vista."</em></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- PAGE: ES -->
+<!-- ═══════════════════════════════════ -->
+<div id="page-es" class="page">
+
+  <!-- Hero -->
+  <div class="persona-hero es" style="margin-top:28px;">
+    <div class="persona-avatar">👩</div>
+    <div class="persona-info">
+      <h2>Doña Carmen</h2>
+      <div class="tagline">"Dejar de usar lentes sería recuperar una vida que siento que perdí"</div>
+      <div class="persona-meta">
+        <span class="meta-chip">📅 50–65 años</span>
+        <span class="meta-chip">💰 $100–$600 USD/mes</span>
+        <span class="meta-chip">🏠 Jubilada / Ama de Casa</span>
+        <span class="meta-chip">📍 Latinoamérica</span>
+      </div>
+    </div>
+    <div class="quote-box" style="border-left-color:rgba(255,255,255,.6);">
+      💡 <strong>Frase de calificación:</strong> Mujer hispanohablante de 50 a 68 años, con cataratas, glaucoma o presbicia, que ya no maneja de noche, quiere autonomía para conducir y hacer manualidades, dispuesta a 20 min/día por 8 días.
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px;">
+    <!-- Dolores -->
+    <div class="card">
+      <div class="card-title"><span>💔</span> Top 10 Dolores</div>
+      <div class="pain-list">
+        <div class="pain-item"><div class="pain-rank">1</div><div class="pain-label">No puede manejar de noche — perdió libertad total</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:100%"></div></div><div class="bar-score">10</div></div></div>
+        <div class="pain-item"><div class="pain-rank">2</div><div class="pain-label">Cataratas progresando — siente que va a cegar</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:100%"></div></div><div class="bar-score">10</div></div></div>
+        <div class="pain-item"><div class="pain-rank">3</div><div class="pain-label">Depende de familiares para salir sola</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="pain-item"><div class="pain-rank">4</div><div class="pain-label">No puede bordar, tejer, coser sin limitaciones</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="pain-item"><div class="pain-rank">5</div><div class="pain-label">Oftalmólogo solo receta más graduación — sin esperanza</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="pain-item"><div class="pain-rank">6</div><div class="pain-label">No puede costear cirugía ni tratamientos</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="pain-item"><div class="pain-rank">7</div><div class="pain-label">No reconoce personas en la calle — vergüenza social</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:80%"></div></div><div class="bar-score">8</div></div></div>
+        <div class="pain-item"><div class="pain-rank">8</div><div class="pain-label">No puede leer etiquetas, medicamentos, carteles</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="pain-item"><div class="pain-rank">9</div><div class="pain-label">Los lentes no funcionan bien — ni de cerca ni de lejos</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:80%"></div></div><div class="bar-score">8</div></div></div>
+        <div class="pain-item"><div class="pain-rank">10</div><div class="pain-label">"No quiero ser una carga" — pérdida de dignidad</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-pain" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+      </div>
+    </div>
+    <!-- Deseos -->
+    <div class="card">
+      <div class="card-title"><span>💚</span> Top 10 Deseos</div>
+      <div class="desire-list">
+        <div class="desire-item"><div class="desire-rank">1</div><div class="desire-label">Manejar de noche con seguridad — libertad total</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:100%"></div></div><div class="bar-score">10</div></div></div>
+        <div class="desire-item"><div class="desire-rank">2</div><div class="desire-label">Dejar los lentes/gafas para siempre</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:100%"></div></div><div class="bar-score">10</div></div></div>
+        <div class="desire-item"><div class="desire-rank">3</div><div class="desire-label">Leer la Biblia, libros y etiquetas sin gafas</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="desire-item"><div class="desire-rank">4</div><div class="desire-label">Bordar, tejer, coser sin limitaciones</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="desire-item"><div class="desire-rank">5</div><div class="desire-label">No depender de nadie para salir sola</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:100%"></div></div><div class="bar-score">10</div></div></div>
+        <div class="desire-item"><div class="desire-rank">6</div><div class="desire-label">Evitar la cirugía de cataratas</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="desire-item"><div class="desire-rank">7</div><div class="desire-label">Que la vista no siga empeorando</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:90%"></div></div><div class="bar-score">9</div></div></div>
+        <div class="desire-item"><div class="desire-rank">8</div><div class="desire-label">Reconocer personas de lejos en la calle</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:80%"></div></div><div class="bar-score">8</div></div></div>
+        <div class="desire-item"><div class="desire-rank">9</div><div class="desire-label">Trabajar frente a la computadora sin cansancio</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:80%"></div></div><div class="bar-score">8</div></div></div>
+        <div class="desire-item"><div class="desire-rank">10</div><div class="desire-label">Ser testimonio de cura natural — ayudar a otros</div><div class="bar-wrap"><div class="bar-track"><div class="bar-fill bar-desire" style="width:70%"></div></div><div class="bar-score">7</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Objeciones ES -->
+  <div class="card" style="margin-bottom:24px;">
+    <div class="card-title"><span>🛡️</span> Top 10 Objeciones — clic para ver respuesta</div>
+    <div class="obj-list">
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"¿Funciona para cataratas/glaucoma avanzado?" <span class="obj-arrow">▼</span></div><div class="obj-a">Casos documentados con la misma condición. La especificidad del testimonio elimina la creencia de que "mi caso es diferente".</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"El médico dijo que no tiene cura" <span class="obj-arrow">▼</span></div><div class="obj-a">"El médico trata la enfermedad. Tatiana entrena el músculo ocular." Respetar al médico y mostrar el ángulo complementario.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"Tengo muchos años con esto — ya no hay solución" <span class="obj-arrow">▼</span></div><div class="obj-a">Testimonios de personas mayores de 60 con mejora concreta. La edad no es barrera en el lenguaje de Tatiana.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"No tengo dinero para pagar nada extra" <span class="obj-arrow">▼</span></div><div class="obj-a">El intensivo es completamente gratis — sin compromiso de compra. Resultado real primero, decisión después.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"¿Es seguro con diabetes/presión alta?" <span class="obj-arrow">▼</span></div><div class="obj-a">"Los ejercicios son suaves y complementan el tratamiento médico." Advertencia clara de que no reemplaza al médico — eso genera confianza.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"No sé manejar bien el celular / el internet" <span class="obj-arrow">▼</span></div><div class="obj-a">Tutorial de acceso simple, grupo de WhatsApp con soporte, video con subtítulos grandes.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"Ya probé algo parecido y no funcionó" <span class="obj-arrow">▼</span></div><div class="obj-a">"El método de Tatiana es diferente — 8 días para que lo compruebes tú misma." Diferencial concreto del método.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"Mi familia dice que es un engaño" <span class="obj-arrow">▼</span></div><div class="obj-a">"El curso es gratuito — ellos mismos pueden acompañarla." Involucrar a la familia en el proceso.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"¿Cuánto tiempo va a tomar?" <span class="obj-arrow">▼</span></div><div class="obj-a">"20 minutos al día por 8 días." Mostrar el cronograma completo desde el primer día.</div></div>
+      <div class="obj-item" onclick="toggleObj(this)"><div class="obj-q">"¿Es una estafa?" <span class="obj-arrow">▼</span></div><div class="obj-a">Historia real de Tatiana, años de presença na internet, volume de alunos, depoimentos verificáveis. Transparência total.</div></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:24px;">
+    <div class="card">
+      <div class="card-title"><span>⚡</span> Gatillos de Decisión</div>
+      <div class="pills">
+        <span class="pill pill-desire">Testimonio mujer 60+ con cataratas</span>
+        <span class="pill pill-desire">Lenguaje cálido y sin juzgar</span>
+        <span class="pill pill-desire">Gratuidad total</span>
+        <span class="pill pill-desire">Resultado en primeros días</span>
+        <span class="pill pill-desire">Comunidad de mujeres hispanas</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>💬</span> Frases que Ella Usa</div>
+      <div class="pills">
+        <span class="pill pill-pain">"Con estos lentes tampoco veo bien"</span>
+        <span class="pill pill-pain">"Ya no manejo de noche"</span>
+        <span class="pill pill-pain">"El médico dice solo cirugía"</span>
+        <span class="pill pill-pain">"No veo ni de lejos ni de cerca"</span>
+        <span class="pill pill-pain">"Sería un milagro sin gafas"</span>
+        <span class="pill pill-pain">"No quiero ser una carga"</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Un día en la vida ES -->
+  <div class="card">
+    <div class="card-title"><span>🌅</span> Un Día en la Vida — Doña Carmen</div>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-time">06:30</div><div class="tl-content">Se despierta y busca los lentes. Sin ellos no ve nada — ni el reloj, ni el celular. Primera dependencia del día.</div></div>
+      <div class="tl-item"><div class="tl-time">08:00</div><div class="tl-content">Intenta leer el frasco del aceite de oliva para ver si venció. Las letras son muy pequeñas. Las adivina. <em>Eso ya es costumbre: adivinar.</em></div></div>
+      <div class="tl-item"><div class="tl-time">09:30</div><div class="tl-content">Intenta bordar. Le duele el ojo derecho a los 20 minutos. Deja el tejido sobre la silla. <em>"Antes podía bordar 3 horas seguidas."</em></div></div>
+      <div class="tl-item"><div class="tl-time">12:00</div><div class="tl-content">Su hija le pide que cuide a los nietos el fin de semana. Duda — no maneja de noche. Responde: <em>"Veo cómo me organizo."</em> Lo que siente: vergüenza.</div></div>
+      <div class="tl-item"><div class="tl-time">16:00</div><div class="tl-content">En Facebook aparece video de Tatiana hablando de ejercicios para el ojo. <em>"¿Esto existe?"</em> Ve el video completo. Le manda a su amiga Rosa.</div></div>
+      <div class="tl-item"><div class="tl-time">22:00</div><div class="tl-content">Se inscribe al intensivo. Antes de dormir le reza a la Virgen: <em>"Señora, si esto funciona, le voy a contar a todo el mundo."</em></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- PAGE: EMPATIA -->
+<!-- ═══════════════════════════════════ -->
+<div id="page-empathy" class="page">
+
+  <div style="display:flex;gap:12px;margin:28px 0 20px;flex-wrap:wrap;">
+    <button onclick="showEmpathy('pt')" id="emp-btn-pt" style="padding:8px 20px;border-radius:20px;border:2px solid var(--pt-primary);background:var(--pt-light);color:var(--pt-dark);font-weight:700;cursor:pointer;font-size:13px;">🇧🇷 Dona Neide (PT)</button>
+    <button onclick="showEmpathy('es')" id="emp-btn-es" style="padding:8px 20px;border-radius:20px;border:2px solid var(--border);background:#fff;color:var(--text-muted);font-weight:700;cursor:pointer;font-size:13px;">🌎 Doña Carmen (ES)</button>
+  </div>
+
+  <!-- PT Empathy -->
+  <div id="emp-pt">
+    <div class="empathy-grid">
+      <div class="empathy-cell thinks">
+        <h4>🧠 Pensa & Sente</h4>
+        <ul>
+          <li>"Será que ainda tenho jeito?"</li>
+          <li>Medo silencioso de cegar com o tempo</li>
+          <li>Culpa por não ter cuidado antes dos olhos</li>
+          <li>Esperança renovada ao encontrar a Tatiana</li>
+          <li>"Não quero ser peso para meus filhos"</li>
+        </ul>
+      </div>
+      <div class="empathy-cell sees">
+        <h4>👁️ Vê</h4>
+        <ul>
+          <li>Óculos cada vez mais fortes todo ano</li>
+          <li>Letras que embaçam no celular</li>
+          <li>Anúncio da Tatiana no Facebook/Instagram</li>
+          <li>Vídeos de cura natural no YouTube</li>
+          <li>Familiares que já perderam a visão</li>
+        </ul>
+      </div>
+      <div class="empathy-cell hears">
+        <h4>👂 Ouve</h4>
+        <ul>
+          <li>Médico: "É a idade, não tem o que fazer"</li>
+          <li>Família: "Mãe, isso não vai funcionar"</li>
+          <li>Amiga: "Fiz exercício e melhorou!"</li>
+          <li>Tatiana: "Você pode melhorar sua visão"</li>
+          <li>Grupo de WhatsApp com dicas de saúde</li>
+        </ul>
+      </div>
+      <div class="empathy-cell says">
+        <h4>🗣️ Diz & Faz</h4>
+        <ul>
+          <li>"Tô bem, graças a Deus" — mesmo não estando</li>
+          <li>Pede ao neto para ler o que não consegue</li>
+          <li>Guarda óculos em todo canto da casa</li>
+          <li>Busca no YouTube: "exercício para olhos"</li>
+          <li>Compartilha vídeos de saúde no WhatsApp</li>
+        </ul>
+      </div>
+      <div class="empathy-cell pains">
+        <h4>💔 Dores</h4>
+        <ul>
+          <li>Não lê a Bíblia sem óculos</li>
+          <li>Não enfia linha na agulha sozinha</li>
+          <li>Passa vergonha em público</li>
+          <li>Médico sem solução alguma</li>
+          <li>Medo crescente de cegar</li>
+        </ul>
+      </div>
+      <div class="empathy-cell gains">
+        <h4>💚 Ganhos</h4>
+        <ul>
+          <li>Ler sem óculos — liberdade espiritual</li>
+          <li>Voltar ao crochê e bordado</li>
+          <li>Independência no dia a dia</li>
+          <li>Nunca mais precisar de cirurgia</li>
+          <li>Ver o rosto dos netos com nitidez</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ES Empathy -->
+  <div id="emp-es" style="display:none;">
+    <div class="empathy-grid">
+      <div class="empathy-cell thinks">
+        <h4>🧠 Piensa & Siente</h4>
+        <ul>
+          <li>"¿Podrá funcionar para mí con mi condición?"</li>
+          <li>Miedo silencioso de que la catarata avance</li>
+          <li>Culpa de no haber cuidado la vista antes</li>
+          <li>Esperanza renovada al ver a Tatiana</li>
+          <li>"No quiero ser una carga para mis hijos"</li>
+        </ul>
+      </div>
+      <div class="empathy-cell sees">
+        <h4>👁️ Ve</h4>
+        <ul>
+          <li>Lentes cada año más caros y más gruesos</li>
+          <li>Anuncio de Tatiana en Facebook/YouTube</li>
+          <li>Vecina que quedó casi ciega sin tratamiento</li>
+          <li>Precios de cirugía que no puede pagar</li>
+          <li>Nietos que crecen y no los ve bien</li>
+        </ul>
+      </div>
+      <div class="empathy-cell hears">
+        <h4>👂 Escucha</h4>
+        <ul>
+          <li>Médico: "Solo cirugía cuando sea el momento"</li>
+          <li>Familia: "Mamá ya no puede sola"</li>
+          <li>Amiga: "Yo mejoré con los ejercicios de Tatiana"</li>
+          <li>Tatiana: "Tu vista puede mejorar con práctica"</li>
+          <li>Grupos de WhatsApp con dicas de salud natural</li>
+        </ul>
+      </div>
+      <div class="empathy-cell says">
+        <h4>🗣️ Dice & Hace</h4>
+        <ul>
+          <li>"Estoy bien, gracias a Dios" — aunque no lo esté</li>
+          <li>Pide a los nietos que le lean etiquetas</li>
+          <li>Guarda lentes en cada cuarto de la casa</li>
+          <li>Busca en YouTube: "ejercicios para ojos"</li>
+          <li>Comparte videos de salud natural en WhatsApp</li>
+        </ul>
+      </div>
+      <div class="empathy-cell pains">
+        <h4>💔 Dolores</h4>
+        <ul>
+          <li>No maneja de noche — perdió libertad</li>
+          <li>Catarata que progresa sin alternativa</li>
+          <li>No reconoce personas en la calle</li>
+          <li>Médico sin solución natural</li>
+          <li>No puede pagar la cirugía</li>
+        </ul>
+      </div>
+      <div class="empathy-cell gains">
+        <h4>💚 Ganancias</h4>
+        <ul>
+          <li>Manejar de noche con seguridad</li>
+          <li>Dejar los lentes para siempre</li>
+          <li>Bordar y tejer sin límite</li>
+          <li>Salir sola con confianza</li>
+          <li>Ver a los nietos nítido</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- PAGE: ICP -->
+<!-- ═══════════════════════════════════ -->
+<div id="page-icp" class="page">
+
+  <div class="section-title" style="margin-top:28px;">ICP — Ideal Customer Profile</div>
+
+  <div class="grid-2" style="margin-bottom:24px;">
+    <div class="card">
+      <div class="card-title" style="color:var(--pt-dark);">🇧🇷 Público Português — Perfil Ideal</div>
+      <div style="overflow:auto;">
+        <table class="icp-table">
+          <thead><tr><th>Atributo</th><th>Ideal</th><th>Aceitável</th><th>Desqualifica</th></tr></thead>
+          <tbody>
+            <tr><td>Idade</td><td><span class="tag-ideal">55–70 anos</span></td><td><span class="tag-ok">45–54 ou 70+</span></td><td><span class="tag-no">Menos de 35</span></td></tr>
+            <tr><td>Problema</td><td><span class="tag-ideal">Catarata, glaucoma, presbiopia</span></td><td><span class="tag-ok">Miopia/astigmatismo leve</span></td><td><span class="tag-no">Só estética</span></td></tr>
+            <tr><td>Renda</td><td><span class="tag-ideal">R$1k–R$5k/mês</span></td><td><span class="tag-ok">Até R$1k</span></td><td><span class="tag-no">+R$10k (vai operar)</span></td></tr>
+            <tr><td>Relação medicina</td><td><span class="tag-ideal">Frustrada, busca alternativa</span></td><td><span class="tag-ok">Cética mas curiosa</span></td><td><span class="tag-no">Só medicina convencional</span></td></tr>
+            <tr><td>Comprometimento</td><td><span class="tag-ideal">20 min/dia por 8 dias</span></td><td><span class="tag-ok">Precisa de incentivo</span></td><td><span class="tag-no">"Não tenho tempo pra nada"</span></td></tr>
+            <tr><td>Acesso digital</td><td><span class="tag-ideal">Usa celular razoavelmente</span></td><td><span class="tag-ok">Usa com ajuda</span></td><td><span class="tag-no">Sem internet</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--es-dark);">🌎 Público Espanhol — Perfil Ideal</div>
+      <div style="overflow:auto;">
+        <table class="icp-table">
+          <thead><tr><th>Atributo</th><th>Ideal</th><th>Aceptable</th><th>Descalifica</th></tr></thead>
+          <tbody>
+            <tr><td>Edad</td><td><span class="tag-ideal">50–68 años</span></td><td><span class="tag-ok">45–49 o 68+</span></td><td><span class="tag-no">Menos de 35</span></td></tr>
+            <tr><td>Problema</td><td><span class="tag-ideal">Cataratas, glaucoma, presbicia</span></td><td><span class="tag-ok">Miopía/astigmatismo leve</span></td><td><span class="tag-no">Solo estética</span></td></tr>
+            <tr><td>Ingreso</td><td><span class="tag-ideal">$100–$600 USD/mes</span></td><td><span class="tag-ok">Menos de $100</span></td><td><span class="tag-no">+$2k (va a cirugía)</span></td></tr>
+            <tr><td>Relación medicina</td><td><span class="tag-ideal">Frustrada, busca alternativa</span></td><td><span class="tag-ok">Escéptica pero curiosa</span></td><td><span class="tag-no">Solo medicina convencional</span></td></tr>
+            <tr><td>Compromiso</td><td><span class="tag-ideal">20 min/día por 8 días</span></td><td><span class="tag-ok">Necesita incentivo</span></td><td><span class="tag-no">"No tengo tiempo"</span></td></tr>
+            <tr><td>Acceso digital</td><td><span class="tag-ideal">Usa celular razonablemente</span></td><td><span class="tag-ok">Usa con ayuda</span></td><td><span class="tag-no">Sin internet</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Lead Scoring — Sinais de Qualificação</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title" style="color:#059669;">🔥 Sinais Quentes (+)</div>
+      <div class="pills" style="gap:8px;">
+        <span class="pill pill-desire">[+5] Mencionou glaucoma, catarata ou doença progressiva</span>
+        <span class="pill pill-desire">[+4] "Médico só aumenta o grau" / "solo receta más"</span>
+        <span class="pill pill-desire">[+4] Quer largar os óculos / dejar los lentes</span>
+        <span class="pill pill-desire">[+3] Mencionou leitura, costura ou dirigir como objetivo</span>
+        <span class="pill pill-desire">[+3] Já tentou algo alternativo antes</span>
+        <span class="pill pill-desire">[+2] Miopia ou astigmatismo simples</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#dc2626;">❄️ Sinais Frios (−)</div>
+      <div class="pills" style="gap:8px;">
+        <span class="pill pill-pain">[−5] "Meu médico disse que estou ótimo com os óculos"</span>
+        <span class="pill pill-pain">[−4] "Não acredito em nada alternativo"</span>
+        <span class="pill pill-pain">[−3] Menos de 40 anos sem condição progressiva</span>
+        <span class="pill pill-pain">[−3] "Quer resultado sem fazer nada"</span>
+        <span class="pill pill-pain">[−2] "Não tenho celular / não uso internet"</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- PAGE: ANTI-PERSONAS -->
+<!-- ═══════════════════════════════════ -->
+<div id="page-anti" class="page">
+  <div class="section-title" style="margin-top:28px;">Anti-Personas — Quem Excluir</div>
+  <p style="font-size:13px;color:var(--text-muted);margin-bottom:24px;">Saber quem NÃO é cliente economiza verba de anúncio e energia de atendimento. Esses perfis consomem recursos sem gerar resultado.</p>
+
+  <div class="grid-2">
+    <div class="anti-card">
+      <h4>⚡ Anti-Persona 1 — "O Imediatista"</h4>
+      <div class="who">Qualquer pessoa que espera resultado em 1 dia e desiste no segundo</div>
+      <div class="anti-quote">"Fiz dois dias e não vi nada, não funciona" / "Hice 2 días y nada"</div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;"><strong>Como identificar:</strong> Pergunta "em quanto tempo melhora?" antes de começar</p>
+      <div class="anti-cost">⚠️ Risco: Abandona antes do efeito aparecer e ainda fala mal do curso</div>
+    </div>
+    <div class="anti-card">
+      <h4>😤 Anti-Persona 2 — "O Cético Debochador"</h4>
+      <div class="who">Pessoa que entra no curso para provar que não funciona</div>
+      <div class="anti-quote">"Isso é charlatanismo, olho não melhora com exercício" / "Es un fraude"</div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;"><strong>Como identificar:</strong> Comentários negativos logo nos primeiros posts do grupo</p>
+      <div class="anti-cost">⚠️ Risco: Contamina o ambiente, desencoraja outros alunos</div>
+    </div>
+    <div class="anti-card">
+      <h4>🚨 Anti-Persona 3 — "O Caso Cirúrgico Urgente"</h4>
+      <div class="who">Pessoa com condição que requer cirurgia imediata (retina descolada, glaucoma agudo)</div>
+      <div class="anti-quote">"Estou perdendo visão muito rápido, o médico disse para operar amanhã"</div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;"><strong>Como identificar:</strong> Urgência extrema + perda rápida de visão mencionada</p>
+      <div class="anti-cost">⚠️ Risco: Ético e jurídico — precisa de médico urgente, não de exercício</div>
+    </div>
+    <div class="anti-card">
+      <h4>🆓 Anti-Persona 4 — "O Gratueiro Permanente"</h4>
+      <div class="who">Pessoa que só quer o curso gratuito e nunca vai converter em nenhum produto</div>
+      <div class="anti-quote">"Gostei! Mas não preciso de nada pago, o gratuito já me basta"</div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;"><strong>Como identificar:</strong> Não abre emails do VIP, nunca pergunta sobre produtos</p>
+      <div class="anti-cost">⚠️ Risco: Volume sem retorno, baixo ROI operacional</div>
+    </div>
+    <div class="anti-card" style="grid-column:1/-1;">
+      <h4>😰 Anti-Persona 5 — "A Hipocondríaca Digital"</h4>
+      <div class="who">Pessoa que pesquisou todas as contraindicações e tem medo de fazer qualquer exercício</div>
+      <div class="anti-quote">"Mas e se o palming piorar meu glaucoma? Li que pode fazer mal..." / "Leí que es peligroso"</div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;"><strong>Como identificar:</strong> Pergunta sobre contraindicações antes de começar qualquer coisa</p>
+      <div class="anti-cost">⚠️ Risco: Alto volume de suporte, baixo comprometimento com a prática, pode contaminar grupo</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<!-- PAGE: COPY GUIDE -->
+<!-- ═══════════════════════════════════ -->
+<div id="page-copy" class="page">
+
+  <div class="section-title" style="margin-top:28px;">Guia de Copy — Estruturas Prontas</div>
+
+  <div class="grid-2" style="margin-bottom:24px;">
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--pt-dark);margin-bottom:10px;">🇧🇷 ESTRUTURA DE ANÚNCIO — PÚBLICO PT</p>
+      <div class="copy-block">
+        <span class="lbl">HEADLINE: </span><span class="val">"Exercício simples que está ajudando mulheres de 55+ a ler a Bíblia sem óculos"</span><br><br>
+        <span class="lbl">DOR: </span><span class="val">"O médico só aumenta o grau — e você continua dependendo dos óculos para tudo"</span><br><br>
+        <span class="lbl">DESEJO: </span><span class="val">"E se você pudesse ler a Bíblia, enfiar linha na agulha e fazer compras sem pedir ajuda?"</span><br><br>
+        <span class="lbl">PROVA: </span><span class="val">[Depoimento em vídeo — mulher 60+ com catarata que melhorou]</span><br><br>
+        <span class="lbl">CTA: </span><span class="val-green">"Se inscreve agora no curso gratuito de 8 dias"</span>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:700;color:var(--es-dark);margin-bottom:10px;">🌎 ESTRUCTURA DE ANUNCIO — PÚBLICO ES</p>
+      <div class="copy-block">
+        <span class="lbl">HEADLINE: </span><span class="val-es">"Ejercicio que ayuda a mujeres mayores de 50 a dejar las gafas — sin cirugía"</span><br><br>
+        <span class="lbl">DOLOR: </span><span class="val-es">"El oftalmólogo solo sube el grado — y sigues sin poder manejar de noche"</span><br><br>
+        <span class="lbl">DESEO: </span><span class="val-es">"¿Y si pudieras volver a manejar, bordar y salir sola sin depender de nadie?"</span><br><br>
+        <span class="lbl">PRUEBA: </span><span class="val-es">[Testimonio en video — mujer 60+ con cataratas que mejoró]</span><br><br>
+        <span class="lbl">CTA: </span><span class="val-green">"Inscríbete gratis al intensivo de 8 días"</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Palavras que FUNCIONAM vs. Palavras a EVITAR</div>
+  <div class="grid-2" style="margin-bottom:24px;">
+    <div class="card">
+      <div class="card-title"><span>✅</span> Sempre Usar</div>
+      <div class="pills">
+        <span class="pill pill-desire">Natural</span>
+        <span class="pill pill-desire">Sem cirurgia / Sin cirugía</span>
+        <span class="pill pill-desire">Em casa / En casa</span>
+        <span class="pill pill-desire">Simples</span>
+        <span class="pill pill-desire">Independência / Autonomía</span>
+        <span class="pill pill-desire">Liberdade / Libertad</span>
+        <span class="pill pill-desire">Exercício / Ejercicio</span>
+        <span class="pill pill-desire">Músculo ocular</span>
+        <span class="pill pill-desire">Gratuito / Gratis</span>
+        <span class="pill pill-desire">Sem compromisso</span>
+        <span class="pill pill-desire">Já ajudou mulheres como você</span>
+        <span class="pill pill-desire">Resultado real</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>🚫</span> Nunca Usar</div>
+      <div class="pills">
+        <span class="pill pill-pain">Milagre instantâneo</span>
+        <span class="pill pill-pain">Cura rápida</span>
+        <span class="pill pill-pain">Resultados garantidos em X dias</span>
+        <span class="pill pill-pain">Seu médico está errado</span>
+        <span class="pill pill-pain">Linguagem técnica sem explicação</span>
+        <span class="pill pill-pain">Tom agressivo de vendas</span>
+        <span class="pill pill-pain">Promessa de cura total</span>
+        <span class="pill pill-pain">Desrespeitar o médico</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Estrutura de Sequência de E-mails</div>
+  <div class="card">
+    <table class="icp-table" style="font-size:13px;">
+      <thead><tr><th>E-mail</th><th>Assunto (PT)</th><th>Objetivo</th><th>Gatilho Psicológico</th></tr></thead>
+      <tbody>
+        <tr><td>E-mail 1</td><td>"Você não está sozinha nisso"</td><td>Validar a dor</td><td>Pertencimento — comunidade</td></tr>
+        <tr><td>E-mail 2</td><td>"Não é a idade — é o músculo"</td><td>Quebrar crença limitante</td><td>Reframe cognitivo</td></tr>
+        <tr><td>E-mail 3</td><td>"A história de quem também achava que era tarde"</td><td>Prova social por condição</td><td>Identificação — "ela é igual a mim"</td></tr>
+        <tr><td>E-mail 4</td><td>"O que acontece no dia 4 do curso"</td><td>Urgência + benefício VIP</td><td>Curiosidade + FOMO</td></tr>
+        <tr><td>E-mail 5</td><td>"Última chance antes do carrinho fechar"</td><td>Fechamento</td><td>Urgência + perda</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:24px;" class="card" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;">
+    <div class="card-title"><span>📌</span> Regra de Ouro — Tom de Voz</div>
+    <div class="grid-2" style="gap:12px;">
+      <div>
+        <p style="font-size:13px;font-weight:700;color:#166534;margin-bottom:8px;">Como a Tatiana FALA com ela:</p>
+        <ul style="font-size:13px;color:var(--text);line-height:2;padding-left:16px;">
+          <li>Acolhedora — "Eu entendo o que você está sentindo"</li>
+          <li>Empática — sem julgamento, sem pressa</li>
+          <li>Educativa — ensina antes de vender</li>
+          <li>Esperançosa — "Você pode melhorar"</li>
+          <li>Específica — fala do problema dela, não de todos</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:13px;font-weight:700;color:#991b1b;margin-bottom:8px;">O que NUNCA aparece no tom:</p>
+        <ul style="font-size:13px;color:var(--text);line-height:2;padding-left:16px;">
+          <li>Pressão — "Corra antes que acabe"</li>
+          <li>Arrogância — "O médico não sabe nada"</li>
+          <li>Exagero — "Cure em 3 dias"</li>
+          <li>Culpa — "Se não melhorou é porque não fez"</li>
+          <li>Linguagem jovem demais — perde conexão</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  🦅 Personas Master — Curso Super Águias | Tatiana Gebrael Capanema | Ciclo 2/2026<br>
+  Gerado por Walter Ferreira — Consultoria Estratégica de Marketing com IA | 05/04/2026
+</div>
+
+<script>
+function show(id, btn, activeClass) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('visible'));
+  document.getElementById('page-'+id).classList.add('visible');
+  document.querySelectorAll('.tab').forEach(t => t.className = 'tab');
+  btn.className = 'tab ' + activeClass;
+}
+
+function toggleObj(el) {
+  el.classList.toggle('open');
+}
+
+function showEmpathy(lang) {
+  document.getElementById('emp-pt').style.display = lang==='pt' ? 'block' : 'none';
+  document.getElementById('emp-es').style.display = lang==='es' ? 'block' : 'none';
+  const btnPt = document.getElementById('emp-btn-pt');
+  const btnEs = document.getElementById('emp-btn-es');
+  if(lang==='pt'){
+    btnPt.style.cssText='padding:8px 20px;border-radius:20px;border:2px solid var(--pt-primary);background:var(--pt-light);color:var(--pt-dark);font-weight:700;cursor:pointer;font-size:13px;';
+    btnEs.style.cssText='padding:8px 20px;border-radius:20px;border:2px solid var(--border);background:#fff;color:var(--text-muted);font-weight:700;cursor:pointer;font-size:13px;';
+  } else {
+    btnEs.style.cssText='padding:8px 20px;border-radius:20px;border:2px solid var(--es-primary);background:var(--es-light);color:var(--es-dark);font-weight:700;cursor:pointer;font-size:13px;';
+    btnPt.style.cssText='padding:8px 20px;border-radius:20px;border:2px solid var(--border);background:#fff;color:var(--text-muted);font-weight:700;cursor:pointer;font-size:13px;';
+  }
+}
+
+// Animate bars on load
+window.addEventListener('load', () => {
+  document.querySelectorAll('.bar-fill').forEach(bar => {
+    const w = bar.style.width;
+    bar.style.width = '0';
+    setTimeout(() => { bar.style.width = w; }, 300);
+  });
+});
+</script>
+</body>
+</html>
